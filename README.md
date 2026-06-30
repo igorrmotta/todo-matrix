@@ -1,25 +1,57 @@
-# CODING AGENTS: READ THIS FIRST
+# Quadrant
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+An Eisenhower Matrix task manager — a calm, paper-toned 2×2 grid that sorts
+tasks by urgency and importance. Built from the **Quadrant** design in the
+Claude Design handoff bundle (`../project/Quadrant.dc.html`).
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+## Features
 
-## What you should do — IMPORTANT
+- **Weighted 2×2 matrix** — Do First (darkest/boldest) → Schedule → Delegate →
+  Eliminate (dashed, faded), with axis labels on the edges.
+- **Add inside each quadrant** — the `＋ Add task` row opens an inline composer
+  (title + optional due date; Enter to add, Esc to cancel).
+- **Drag between quadrants** — cards lift while dragging; the target quadrant
+  outlines as you hover.
+- **Tasks** — title, due-date chip (Today/Overdue go accent), a checkbox to
+  complete, and hover edit/delete.
+- **Focus mode** — the header toggle fades the other quadrants and walks
+  Do First → Schedule → Delegate → Eliminate, auto-advancing as each clears
+  (empty ones skipped), then hands the full matrix back with an "All clear" note.
+  Editing stays live throughout.
+- **Progress bar** on the Do First header (and the active focused quadrant).
+- **Shared Done panel** — checked tasks leave their quadrant for one list,
+  newest first, with restore / clear-all. No origin tags.
+- **Empty state** that guides a first-time user.
+- **Persistence** — tasks and UI prefs live in **IndexedDB** via Dexie, so the
+  board survives reloads.
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+## Stack
 
-**Read `project/Quadrant.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+- **Vite + React 18 + TypeScript**
+- **Dexie** (`dexie`, `dexie-react-hooks`) for IndexedDB persistence
+- No CSS framework — the design is recreated with inline styles matching the
+  prototype; the accent color drives hover states via a `--accent` CSS variable.
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## Develop
 
-## About the design files
+```bash
+pnpm install
+pnpm dev        # start the dev server
+pnpm build      # typecheck (tsc) + production build
+pnpm preview    # serve the production build
+```
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+## Configuration
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+Design tokens from the original Claude Design "editor" controls live in
+[`src/theme.ts`](src/theme.ts):
 
-## Bundle contents
+- `ACCENT` — accent color (`#bd5f3a`, with `#3f6ec8` / `#5f7a4f` / `#7d5fb0` as
+  the prototype's alternates)
+- `DIM_LEVEL` — focus-mode dim opacity for inactive quadrants (`0.16`)
+- `COMPACT` — denser card layout (`false`)
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `Eisenhower Matrix Task Manager` project files (HTML prototypes, assets, components)
+## Resetting data
+
+The first run seeds sample tasks (guarded by a `seeded` flag). To start clean,
+clear the `quadrant_v1` IndexedDB database in your browser's dev tools.
