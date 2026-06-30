@@ -1,0 +1,69 @@
+:root {
+  --accent: #bd5f3a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d8d2c6;
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+input::placeholder {
+  color: #bdb6a8;
+}
+button {
+  font-family: inherit;
+}
+input {
+  font-family: inherit;
+}
+
+/* --- Hover states (ported from the prototype's style-hover attributes) --- */
+
+/* Task checkbox */
+.q-checkbox:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* Edit (pencil) icon button */
+.q-edit:hover {
+  color: #2a2825;
+  background: #f1ede4;
+}
+
+/* Delete (✕) icon button */
+.q-del:hover {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* "＋ Add task" dashed row */
+.q-add:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* "Clear all" link in the Done panel */
+.q-clear:hover {
+  color: var(--accent);
+}
+
+/* Restore (↺) button in the Done list */
+.q-undo:hover {
+  color: #2a2825;
+}
