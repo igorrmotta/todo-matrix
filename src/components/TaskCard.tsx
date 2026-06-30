@@ -1,6 +1,6 @@
 import { ACCENT } from "../theme";
 import type { Task } from "../types";
-import { fmtDue } from "../utils";
+import { waiting } from "../utils";
 
 interface TaskCardProps {
   task: Task;
@@ -29,31 +29,19 @@ export function TaskCard({
   onDragOver,
   onDrop,
 }: TaskCardProps) {
-  const due = fmtDue(task.due);
+  const wait = waiting(task.createdAt);
   const tPad = compact ? "7px 9px" : "9px 11px";
   const tFont = compact ? "13px" : "14px";
 
-  const dueChipStyle: React.CSSProperties = due
-    ? due.hot
-      ? {
-          font: "700 9.5px ui-monospace,monospace",
-          color: ACCENT,
-          background: ACCENT + "24",
-          padding: "3px 7px",
-          borderRadius: 6,
-          whiteSpace: "nowrap",
-          letterSpacing: ".02em",
-        }
-      : {
-          font: "700 9.5px ui-monospace,monospace",
-          color: "#8a857c",
-          background: "#f1ede4",
-          padding: "3px 7px",
-          borderRadius: 6,
-          whiteSpace: "nowrap",
-          letterSpacing: ".02em",
-        }
-    : {};
+  const waitChipStyle: React.CSSProperties = {
+    font: "700 9.5px ui-monospace,monospace",
+    color: "#8a857c",
+    background: "#f1ede4",
+    padding: "3px 7px",
+    borderRadius: 6,
+    whiteSpace: "nowrap",
+    letterSpacing: ".02em",
+  };
 
   return (
     <div
@@ -110,7 +98,7 @@ export function TaskCard({
       >
         {task.title}
       </span>
-      {due && <span style={dueChipStyle}>{due.label}</span>}
+      {wait && <span style={waitChipStyle}>{wait}</span>}
       <span style={{ display: "flex", gap: 1, flex: "none" }}>
         <button
           className="q-edit"

@@ -14,8 +14,8 @@ interface MatrixProps {
   onCancelAdd: () => void;
   onStartEdit: (id: number) => void;
   onCancelEdit: () => void;
-  addTask: (title: string, due: string | null, quad: QuadKey) => void;
-  editTask: (id: number, title: string, due: string | null) => void;
+  addTask: (title: string, quad: QuadKey) => void;
+  editTask: (id: number, title: string) => void;
   deleteTask: (id: number) => void;
   toggleDone: (id: number) => void;
   reorderTask: (id: number, quad: QuadKey, beforeId: number | null) => void;
@@ -138,11 +138,11 @@ export function Matrix({
             editId={editId}
             draggingId={dragId}
             onOpenAdd={() => onOpenAdd(m.key)}
-            onAddSubmit={(title, due) => addTask(title, due, m.key)}
+            onAddSubmit={(title) => addTask(title, m.key)}
             onAddCancel={onCancelAdd}
             onStartEdit={onStartEdit}
-            onEditSubmit={(id, title, due) => {
-              editTask(id, title, due);
+            onEditSubmit={(id, title) => {
+              editTask(id, title);
               onCancelEdit();
             }}
             onEditCancel={onCancelEdit}

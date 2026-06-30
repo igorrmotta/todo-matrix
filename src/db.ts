@@ -1,5 +1,6 @@
 import Dexie, { type Table } from "dexie";
 import type { Task } from "./types";
+import { registerSchema } from "./migrations";
 
 /** App-level UI preferences (focus toggle, done-panel open) persisted alongside tasks. */
 export interface MetaRow {
@@ -13,10 +14,7 @@ class QuadrantDB extends Dexie {
 
   constructor() {
     super("quadrant_v1");
-    this.version(1).stores({
-      tasks: "++id, quad, done, doneAt",
-      meta: "key",
-    });
+    registerSchema(this);
   }
 }
 

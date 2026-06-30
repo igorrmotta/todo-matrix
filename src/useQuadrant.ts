@@ -13,8 +13,8 @@ export interface QuadrantApi {
   toggleDonePanel: () => void;
   /** First non-empty quadrant in priority order while focused, else null. */
   activeQuad: QuadKey | null;
-  addTask: (title: string, due: string | null, quad: QuadKey) => Promise<void>;
-  editTask: (id: number, title: string, due: string | null) => Promise<void>;
+  addTask: (title: string, quad: QuadKey) => Promise<void>;
+  editTask: (id: number, title: string) => Promise<void>;
   deleteTask: (id: number) => Promise<void>;
   toggleDone: (id: number) => Promise<void>;
   reorderTask: (id: number, quad: QuadKey, beforeId: number | null) => Promise<void>;
@@ -61,29 +61,24 @@ export function useQuadrant(): QuadrantApi {
     });
   }, []);
 
-  const addTask = useCallback(
-    async (title: string, due: string | null, quad: QuadKey) => {
-      const trimmed = title.trim();
-      if (!trimmed) return;
-      await db.tasks.add({
-        title: trimmed,
-        due: due || null,
-        quad,
-        done: false,
-        order: Date.now(),
-      });
-    },
-    [],
-  );
+  const addTask = useCallback(async (title: string, quad: QuadKey) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    const now = Date.now();
+    await db.tasks.add({
+      title: trimmed,
+      quad,
+      done: false,
+      order: now,
+      createdAt: now,
+    });
+  }, []);
 
-  const editTask = useCallback(
-    async (id: number, title: string, due: string | null) => {
-      const trimmed = title.trim();
-      if (!trimmed) return;
-      await db.tasks.update(id, { title: trimmed, due: due || null });
-    },
-    [],
-  );
+  const editTask = useCallback(async (id: number, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    await db.tasks.update(id, { title: trimmed });
+  }, []);
 
   const deleteTask = useCallback(async (id: number) => {
     await db.tasks.delete(id);

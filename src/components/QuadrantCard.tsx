@@ -17,10 +17,10 @@ interface QuadrantCardProps {
   editId: number | null;
   draggingId: number | null;
   onOpenAdd: () => void;
-  onAddSubmit: (title: string, due: string | null) => void;
+  onAddSubmit: (title: string) => void;
   onAddCancel: () => void;
   onStartEdit: (id: number) => void;
-  onEditSubmit: (id: number, title: string, due: string | null) => void;
+  onEditSubmit: (id: number, title: string) => void;
   onEditCancel: () => void;
   onToggleDone: (id: number) => void;
   onDelete: (id: number) => void;
@@ -186,10 +186,9 @@ export function QuadrantCard(props: QuadrantCardProps) {
             <Composer
               key={t.id}
               initialTitle={t.title}
-              initialDue={t.due ?? ""}
               submitLabel="Save"
               selectOnFocus
-              onSubmit={(title, due) => props.onEditSubmit(t.id!, title, due)}
+              onSubmit={(title) => props.onEditSubmit(t.id!, title)}
               onCancel={props.onEditCancel}
             />
           ) : (

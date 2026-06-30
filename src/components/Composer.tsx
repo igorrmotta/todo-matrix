@@ -3,16 +3,15 @@ import { ACCENT, ACCENT_SOFT } from "../theme";
 
 interface ComposerProps {
   initialTitle?: string;
-  initialDue?: string;
   placeholder?: string;
   submitLabel: string;
   selectOnFocus?: boolean;
   /**
-   * Add mode: after a successful submit, clear the fields and stay open for
+   * Add mode: after a successful submit, clear the field and stay open for
    * rapid entry; an empty submit cancels. (Matches the prototype's saveAdd.)
    */
   resetAfterSubmit?: boolean;
-  onSubmit: (title: string, due: string | null) => void;
+  onSubmit: (title: string) => void;
   onCancel: () => void;
 }
 
@@ -27,7 +26,6 @@ const composerStyle: React.CSSProperties = {
 
 export function Composer({
   initialTitle = "",
-  initialDue = "",
   placeholder,
   submitLabel,
   selectOnFocus = false,
@@ -36,7 +34,6 @@ export function Composer({
   onCancel,
 }: ComposerProps) {
   const [title, setTitle] = useState(initialTitle);
-  const [due, setDue] = useState(initialDue);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -58,12 +55,11 @@ export function Composer({
         onCancel();
         return;
       }
-      onSubmit(title, due || null);
+      onSubmit(title);
       setTitle("");
-      setDue("");
       inputRef.current?.focus();
     } else {
-      onSubmit(title, due || null);
+      onSubmit(title);
     }
   };
 
@@ -97,19 +93,6 @@ export function Composer({
         }}
       />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9 }}>
-        <input
-          type="date"
-          value={due}
-          onChange={(e) => setDue(e.target.value)}
-          style={{
-            font: "600 11px ui-monospace,monospace",
-            color: "#8a857c",
-            border: "1px solid #e3ddd0",
-            borderRadius: 7,
-            padding: "4px 7px",
-            background: "#fff",
-          }}
-        />
         <button
           onClick={onCancel}
           style={{

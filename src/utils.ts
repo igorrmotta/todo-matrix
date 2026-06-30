@@ -1,32 +1,14 @@
-/** Due-date formatting, ported from the prototype's `_fmtDue`. */
-export interface DueInfo {
-  label: string;
-  hot: boolean; // Today / Overdue → accent-colored
-}
-
-export function fmtDue(due: string | null): DueInfo | null {
-  if (!due) return null;
-  const d = new Date(due + "T00:00:00");
-  if (isNaN(d.getTime())) return null;
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const diff = Math.round((d.getTime() - now.getTime()) / 86400000);
-  let label: string;
-  let hot = false;
-  if (diff < 0) {
-    label = "Overdue";
-    hot = true;
-  } else if (diff === 0) {
-    label = "Today";
-    hot = true;
-  } else if (diff === 1) {
-    label = "Tomorrow";
-  } else if (diff < 7) {
-    label = d.toLocaleDateString("en-US", { weekday: "short" });
-  } else {
-    label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  }
-  return { label, hot };
+/** Compact "waiting" age label from a task's creation time: "Today" / "3d" / "2w". */
+export function waiting(createdAt?: number): string {
+  if (!createdAt) return "";
+  const created = new Date(createdAt);
+  created.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Math.round((today.getTime() - created.getTime()) / 86400000);
+  if (days <= 0) return "Today";
+  if (days < 7) return `${days}d`;
+  return `${Math.floor(days / 7)}w`;
 }
 
 /** Relative "time ago" for the Done list, ported from the prototype's `_ago`. */
