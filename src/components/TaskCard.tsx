@@ -6,22 +6,28 @@ interface TaskCardProps {
   task: Task;
   compact: boolean;
   dragging: boolean;
+  dropTarget: boolean;
   onToggle: () => void;
   onDelete: () => void;
   onStartEdit: () => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
 }
 
 export function TaskCard({
   task,
   compact,
   dragging,
+  dropTarget,
   onToggle,
   onDelete,
   onStartEdit,
   onDragStart,
   onDragEnd,
+  onDragOver,
+  onDrop,
 }: TaskCardProps) {
   const due = fmtDue(task.due);
   const tPad = compact ? "7px 9px" : "9px 11px";
@@ -54,6 +60,8 @@ export function TaskCard({
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
       style={{
         display: "flex",
         alignItems: "center",
@@ -65,7 +73,11 @@ export function TaskCard({
         cursor: "grab",
         transition: "opacity .2s,box-shadow .2s,transform .2s",
         opacity: dragging ? 0.4 : 1,
-        boxShadow: dragging ? "0 10px 24px rgba(42,40,37,.16)" : "none",
+        boxShadow: dragging
+          ? "0 10px 24px rgba(42,40,37,.16)"
+          : dropTarget
+            ? `inset 0 2px 0 ${ACCENT}`
+            : "none",
         transform: dragging ? "scale(1.02)" : "none",
       }}
     >

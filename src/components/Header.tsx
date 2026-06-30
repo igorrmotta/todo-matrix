@@ -28,7 +28,7 @@ export function Header({
     >
       <div style={{ display: "flex", flexDirection: "column" }}>
         <span style={{ font: "500 italic 27px/1 'Newsreader',serif", color: "#2a2825" }}>
-          Quadrant
+          To-Do
         </span>
         <span
           style={{

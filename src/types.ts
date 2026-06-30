@@ -7,4 +7,5 @@ export interface Task {
   quad: QuadKey;
   done: boolean;
   doneAt?: number | null; // epoch ms when completed
+  order?: number; // sort position within a quadrant (lower = higher up)
 }

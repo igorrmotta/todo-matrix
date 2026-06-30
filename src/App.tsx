@@ -3,6 +3,7 @@ import { Header } from "./components/Header";
 import { Matrix } from "./components/Matrix";
 import { DonePanel } from "./components/DonePanel";
 import { EmptyState } from "./components/EmptyState";
+import { ConfirmDialog } from "./components/ConfirmDialog";
 import { ACCENT, quadByKey } from "./theme";
 import type { QuadKey } from "./types";
 import { useQuadrant } from "./useQuadrant";
@@ -11,6 +12,7 @@ export default function App() {
   const q = useQuadrant();
   const [composeQuad, setComposeQuad] = useState<QuadKey | null>(null);
   const [editId, setEditId] = useState<number | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   const tasks = q.tasks ?? [];
   const doneTasks = tasks
@@ -107,9 +109,9 @@ export default function App() {
               onCancelEdit={() => setEditId(null)}
               addTask={q.addTask}
               editTask={q.editTask}
-              deleteTask={q.deleteTask}
+              deleteTask={setPendingDeleteId}
               toggleDone={q.toggleDone}
-              moveTask={q.moveTask}
+              reorderTask={q.reorderTask}
             />
           )}
         </main>
@@ -121,6 +123,17 @@ export default function App() {
           onUndo={q.toggleDone}
         />
       </div>
+
+      {pendingDeleteId != null && (
+        <ConfirmDialog
+          message="Delete this task?"
+          onConfirm={() => {
+            void q.deleteTask(pendingDeleteId);
+            setPendingDeleteId(null);
+          }}
+          onCancel={() => setPendingDeleteId(null)}
+        />
+      )}
     </div>
   );
 }

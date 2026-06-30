@@ -26,6 +26,9 @@ interface QuadrantCardProps {
   onDelete: (id: number) => void;
   onTaskDragStart: (id: number, e: React.DragEvent) => void;
   onTaskDragEnd: () => void;
+  onTaskDragOver: (id: number, e: React.DragEvent) => void;
+  onTaskDrop: (id: number, e: React.DragEvent) => void;
+  dragOverId: number | null;
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent) => void;
 }
@@ -195,11 +198,14 @@ export function QuadrantCard(props: QuadrantCardProps) {
               task={t}
               compact={compact}
               dragging={draggingId === t.id}
+              dropTarget={props.dragOverId === t.id}
               onToggle={() => props.onToggleDone(t.id!)}
               onDelete={() => props.onDelete(t.id!)}
               onStartEdit={() => props.onStartEdit(t.id!)}
               onDragStart={(e) => props.onTaskDragStart(t.id!, e)}
               onDragEnd={props.onTaskDragEnd}
+              onDragOver={(e) => props.onTaskDragOver(t.id!, e)}
+              onDrop={(e) => props.onTaskDrop(t.id!, e)}
             />
           ),
         )}

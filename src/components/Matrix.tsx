@@ -18,7 +18,7 @@ interface MatrixProps {
   editTask: (id: number, title: string, due: string | null) => void;
   deleteTask: (id: number) => void;
   toggleDone: (id: number) => void;
-  moveTask: (id: number, quad: QuadKey) => void;
+  reorderTask: (id: number, quad: QuadKey, beforeId: number | null) => void;
 }
 
 const axisLabelStyle: React.CSSProperties = {
@@ -50,10 +50,17 @@ export function Matrix({
   editTask,
   deleteTask,
   toggleDone,
-  moveTask,
+  reorderTask,
 }: MatrixProps) {
   const [dragId, setDragId] = useState<number | null>(null);
   const [dragOverQuad, setDragOverQuad] = useState<QuadKey | null>(null);
+  const [dragOverId, setDragOverId] = useState<number | null>(null);
+
+  const resetDrag = () => {
+    setDragId(null);
+    setDragOverQuad(null);
+    setDragOverId(null);
+  };
 
   const onTaskDragStart = (id: number, e: React.DragEvent) => {
     try {
@@ -64,19 +71,33 @@ export function Matrix({
     }
     setDragId(id);
   };
-  const onTaskDragEnd = () => {
-    setDragId(null);
-    setDragOverQuad(null);
-  };
+  const onTaskDragEnd = resetDrag;
+
+  // Hovering empty quadrant space = append target (no specific task highlighted).
   const onDragOver = (q: QuadKey, e: React.DragEvent) => {
     e.preventDefault();
     if (dragOverQuad !== q) setDragOverQuad(q);
+    if (dragOverId !== null) setDragOverId(null);
   };
   const onDrop = (q: QuadKey, e: React.DragEvent) => {
     e.preventDefault();
-    if (dragId != null) moveTask(dragId, q);
-    setDragId(null);
-    setDragOverQuad(null);
+    if (dragId != null) reorderTask(dragId, q, null);
+    resetDrag();
+  };
+
+  // Hovering a task = insert-before target. stopPropagation so the quadrant
+  // container handlers don't also fire (which would clear the indicator / append).
+  const onTaskDragOver = (id: number, q: QuadKey, e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (dragOverId !== id) setDragOverId(id);
+    if (dragOverQuad !== q) setDragOverQuad(q);
+  };
+  const onTaskDrop = (id: number, q: QuadKey, e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (dragId != null && dragId !== id) reorderTask(dragId, q, id);
+    resetDrag();
   };
 
   return (
@@ -98,7 +119,9 @@ export function Matrix({
 
       {QUAD_META.map((m) => {
         const inQuad = tasks.filter((t) => t.quad === m.key);
-        const incomplete = inQuad.filter((t) => !t.done);
+        const incomplete = inQuad
+          .filter((t) => !t.done)
+          .sort((a, b) => (a.order ?? a.id ?? 0) - (b.order ?? b.id ?? 0));
         const dimmed = focus && activeQuad != null && activeQuad !== m.key;
         const isActive = focus && activeQuad === m.key;
         return (
@@ -127,6 +150,9 @@ export function Matrix({
             onDelete={deleteTask}
             onTaskDragStart={onTaskDragStart}
             onTaskDragEnd={onTaskDragEnd}
+            onTaskDragOver={(id, e) => onTaskDragOver(id, m.key, e)}
+            onTaskDrop={(id, e) => onTaskDrop(id, m.key, e)}
+            dragOverId={dragOverId}
             onDragOver={(e) => onDragOver(m.key, e)}
             onDrop={(e) => onDrop(m.key, e)}
           />

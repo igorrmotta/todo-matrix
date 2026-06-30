@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, ensureSeeded, getMeta, setMeta } from "./db";
+import { db, getMeta, setMeta } from "./db";
 import { QUAD_ORDER } from "./theme";
 import type { QuadKey, Task } from "./types";
 
@@ -17,7 +17,7 @@ export interface QuadrantApi {
   editTask: (id: number, title: string, due: string | null) => Promise<void>;
   deleteTask: (id: number) => Promise<void>;
   toggleDone: (id: number) => Promise<void>;
-  moveTask: (id: number, quad: QuadKey) => Promise<void>;
+  reorderTask: (id: number, quad: QuadKey, beforeId: number | null) => Promise<void>;
   clearDone: () => Promise<void>;
 }
 
@@ -27,11 +27,10 @@ export function useQuadrant(): QuadrantApi {
   const [doneOpen, setDoneOpen] = useState(true);
   const [ready, setReady] = useState(false);
 
-  // One-time seed + load persisted UI prefs.
+  // Load persisted UI prefs.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      await ensureSeeded();
       const [f, d] = await Promise.all([
         getMeta("focus", false),
         getMeta("doneOpen", true),
@@ -66,7 +65,13 @@ export function useQuadrant(): QuadrantApi {
     async (title: string, due: string | null, quad: QuadKey) => {
       const trimmed = title.trim();
       if (!trimmed) return;
-      await db.tasks.add({ title: trimmed, due: due || null, quad, done: false });
+      await db.tasks.add({
+        title: trimmed,
+        due: due || null,
+        quad,
+        done: false,
+        order: Date.now(),
+      });
     },
     [],
   );
@@ -91,9 +96,27 @@ export function useQuadrant(): QuadrantApi {
     await db.tasks.update(id, { done, doneAt: done ? Date.now() : t.doneAt });
   }, []);
 
-  const moveTask = useCallback(async (id: number, quad: QuadKey) => {
-    await db.tasks.update(id, { quad });
-  }, []);
+  // Move/reorder a task: insert it before `beforeId` within `quad`, or append
+  // when `beforeId` is null. Rewrites sequential order across that quadrant's
+  // incomplete tasks so position survives reloads.
+  const reorderTask = useCallback(
+    async (id: number, quad: QuadKey, beforeId: number | null) => {
+      await db.transaction("rw", db.tasks, async () => {
+        const all = await db.tasks.toArray();
+        const dragged = all.find((t) => t.id === id);
+        if (!dragged) return;
+        const list = all
+          .filter((t) => t.quad === quad && !t.done && t.id !== id)
+          .sort((a, b) => (a.order ?? a.id ?? 0) - (b.order ?? b.id ?? 0));
+        const at = beforeId == null ? -1 : list.findIndex((t) => t.id === beforeId);
+        list.splice(at < 0 ? list.length : at, 0, dragged);
+        await Promise.all(
+          list.map((t, i) => db.tasks.update(t.id!, { quad, order: i })),
+        );
+      });
+    },
+    [],
+  );
 
   const clearDone = useCallback(async () => {
     const all = await db.tasks.toArray();
@@ -122,7 +145,7 @@ export function useQuadrant(): QuadrantApi {
     editTask,
     deleteTask,
     toggleDone,
-    moveTask,
+    reorderTask,
     clearDone,
   };
 }
