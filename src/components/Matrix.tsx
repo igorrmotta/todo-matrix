@@ -106,8 +106,8 @@ export function Matrix({
         flex: 1,
         minHeight: 0,
         display: "grid",
-        gridTemplateColumns: "20px 1fr 1fr",
-        gridTemplateRows: "16px 1fr 1fr",
+        gridTemplateColumns: "20px minmax(0, 1fr) minmax(0, 1fr)",
+        gridTemplateRows: "16px minmax(0, 1fr) minmax(0, 1fr)",
         gap: 14,
       }}
     >

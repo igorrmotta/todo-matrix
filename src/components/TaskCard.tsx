@@ -91,9 +91,7 @@ export function TaskCard({
           minWidth: 0,
           font: `500 ${tFont}/1.25 'Hanken Grotesk',sans-serif`,
           color: "#2a2825",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
+          overflowWrap: "anywhere",
         }}
       >
         {task.title}
